@@ -114,6 +114,7 @@
 		public virtual IDispatchTable DispatchTable { get; private set; }
 		public virtual bool SkipDeclarations { get; private set; }
 		public virtual bool RandomInputQueue { get; private set; }
+		public virtual IDictionary<string, Type> TypeAliases { get { return this.typeAliases; } }
 
 		public virtual RabbitChannelGroupConfiguration WithGroupName(string name)
 		{
@@ -201,6 +202,14 @@
 		public virtual RabbitChannelGroupConfiguration WithSynchronousOperation()
 		{
 			this.Synchronous = true;
+			return this;
+		}
+
+		public virtual RabbitChannelGroupConfiguration WithAlias<T>(string original) where T : class
+		{
+			if (!string.IsNullOrWhiteSpace(original))
+				this.typeAliases.Add(original, typeof(T));
+
 			return this;
 		}
 
@@ -391,5 +400,6 @@
 		private static readonly ISerializer DefaultSerializer = new BinarySerializer();
 		private static readonly IDispatchTable DefaultDispatchTable = new RabbitDispatchTable();
 		private readonly ICollection<Type> messageTypes = new HashSet<Type>();
+		private readonly IDictionary<string, Type> typeAliases = new Dictionary<string, Type>(); 
 	}
 }

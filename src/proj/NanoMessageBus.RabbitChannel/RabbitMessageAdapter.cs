@@ -67,10 +67,19 @@
 		}
 		private IEnumerable<object> Deserialize(byte[] body, string type, string format, string encoding)
 		{
-			var parsedType = Type.GetType(type, false, true) ?? typeof(object);
+			var parsedType = this.ParseType(type);
 			var deserialized = this.configuration.Serializer.Deserialize(body, parsedType, format, encoding);
 			var collection = deserialized as object[];
 			return collection ?? new[] { deserialized };
+		}
+		private Type ParseType(string original)
+		{
+			Type target;
+			if (this.configuration.TypeAliases.TryGetValue(original, out target))
+				return target;
+
+			return Type.GetType(original, false, true) ?? typeof(object);
+			
 		}
 		protected virtual void AppendHeaders(ChannelMessage message, IBasicProperties properties)
 		{
